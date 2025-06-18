@@ -1,0 +1,27 @@
+# Start from official Go image for build
+FROM golang:1.23-alpine AS builder
+WORKDIR /app
+
+# Copy go.mod and go.sum
+COPY go.mod go.sum ./
+RUN go mod download
+
+# Copy source files
+COPY . .
+
+# Build the Go binary (static, minimal)
+RUN go build -o hello-server main.go
+
+# Use a minimal image for runtime
+FROM alpine:latest
+
+WORKDIR /app
+
+# Copy the built binary from builder stage
+COPY --from=builder /app/hello-server .
+
+# Expose port 3000
+EXPOSE 3001
+
+# Run the server
+CMD ["./hello-server"]

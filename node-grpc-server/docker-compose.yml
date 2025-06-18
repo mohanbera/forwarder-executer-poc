@@ -1,0 +1,47 @@
+services:
+  node-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: node-grpc-server
+    container_name: node-grpc-server
+    ports:
+      - "50051:50051"
+    networks:
+      - rust-node-net
+
+  rust-client:
+    build:
+      context: ../rust-executer
+      dockerfile: Dockerfile
+    image: rust-executer
+    container_name: rust-grpc-client
+    ports:
+      - "3000:3000"
+    depends_on:
+      - node-server
+    networks:
+      - rust-node-net
+    environment:
+      - RUST_LOG=info
+    mem_limit: 300m
+
+  go-client:
+    build:
+      context: ../go-executer
+      dockerfile: Dockerfile
+    image: go-executer
+    container_name: go-grpc-client
+    ports:
+      - "3001:3001"
+    depends_on:
+      - node-server
+    networks:
+      - rust-node-net
+    environment:
+      - RUST_LOG=info
+    mem_limit: 400m
+
+networks:                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
+  rust-node-net:
+    driver: bridge
