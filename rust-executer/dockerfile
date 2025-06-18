@@ -1,0 +1,16 @@
+# Dockerfile
+
+# Step 1: Build the application
+FROM rust
+WORKDIR /app
+
+# Copy manifest first to cache dependencies
+COPY . .
+COPY /target/debug/rust-executer .
+
+# Copy source code
+
+# Now build actual project
+# RUN cargo build
+EXPOSE 3000
+ENTRYPOINT [ "./rust-executer" ]
