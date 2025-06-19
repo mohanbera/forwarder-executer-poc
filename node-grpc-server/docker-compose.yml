@@ -14,10 +14,10 @@ services:
     build:
       context: ../rust-executer
       dockerfile: Dockerfile
-    image: rust-executer
-    container_name: rust-grpc-client
+    image: poc-rust-executer
+    container_name: ppoc-rust-grpc-client
     ports:
-      - "3000:3000"
+      - "3003:3003"
     depends_on:
       - node-server
     networks:
@@ -30,8 +30,8 @@ services:
     build:
       context: ../go-executer
       dockerfile: Dockerfile
-    image: go-executer
-    container_name: go-grpc-client
+    image: poc-go-executer
+    container_name: poc-go-grpc-client
     ports:
       - "3001:3001"
     depends_on:
@@ -46,10 +46,24 @@ services:
     build:
       context: ../node-executer
       dockerfile: Dockerfile
-    image: node-executer
-    container_name: node-grpc-client
+    image: poc-node-executer
+    container_name: poc-node-grpc-client
     ports:
       - "3002:3002"
+    depends_on:
+      - node-server
+    networks:
+      - rust-node-net
+    mem_limit: 400m
+
+  go-forwarder:
+    build:
+      context: ../node-executer
+      dockerfile: Dockerfile
+    image: poc-node-executer
+    container_name: poc-node-grpc-client
+    ports:
+      - "3004:3004"
     depends_on:
       - node-server
     networks:

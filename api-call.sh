@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Configuration
-FILES_DIR="/home/curiosity8/Downloads/text-files/"  # directory containing files
-API_URL="http://localhost:3000/hello"  # API endpoint URL
+FILES_DIR="/home/administrator/Desktop/text-files/"  # directory containing files
+API_URL="http://132.186.123.91:3003/hello"  # API endpoint URL
 
 # Ensure the directory exists
 if [ ! -d "$FILES_DIR" ]; then
