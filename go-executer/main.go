@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 
 	pb "echo-hello/pb" // Adjust the import path
@@ -67,6 +68,27 @@ func sayHelloHandler(c echo.Context) error {
 func main() {
 	e := echo.New()
 	e.Use(middleware.BodyLimit("200M"))
+
+	conn, err := grpc.Dial("localhost:50051", grpc.WithInsecure())
+	if err != nil {
+		log.Fatalf("Connect failed: %v", err)
+	}
+	defer conn.Close()
+
+	client := pb.NewGreeterClient(conn)
+
+	stream, err := client.StreamHello(context.Background(), &pb.HelloRequest{Name: "Alice"})
+	if err != nil {
+		log.Fatalf("StreamHello failed: %v", err)
+	}
+
+	for {
+		msg, err := stream.Recv()
+		if err != nil {
+			break
+		}
+		log.Println("Received:", msg.GetMessage())
+	}
 
 	e.POST("/hello", sayHelloHandler)
 
