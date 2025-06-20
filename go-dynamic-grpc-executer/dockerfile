@@ -1,32 +1,27 @@
-# Build stage
-FROM golang:1.21 as builder
-
+# Start from official Go image for build
+FROM golang:1.23-alpine AS builder
 WORKDIR /app
 
-# Install protoc plugins
-RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@latest \
-    && go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
-
-# Copy go files and proto
+# Copy go.mod and go.sum
 COPY go.mod go.sum ./
 RUN go mod download
 
+# Copy source files
 COPY . .
 
-# Generate Go code from proto
-RUN protoc --go_out=pb --go-grpc_out=pb --proto_path=proto proto/greeter.proto
+# Build the Go binary (static, minimal)
+RUN go build -o hello-server main.go
 
-# Build the app
-RUN go build -o server main.go
-
-# Runtime stage
-FROM gcr.io/distroless/base-debian11
+# Use a minimal image for runtime
+FROM alpine:latest
 
 WORKDIR /app
 
-COPY --from=builder /app/server .
-COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+# Copy the built binary from builder stage
+COPY --from=builder /app/hello-server .
 
-EXPOSE 50052 3004
+# Expose port 3005
+EXPOSE 3005
 
-ENTRYPOINT ["./server"]
+# Run the server
+CMD ["./hello-server"]

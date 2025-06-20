@@ -61,9 +61,23 @@ services:
       context: ../node-executer
       dockerfile: Dockerfile
     image: poc-node-executer
-    container_name: poc-node-grpc-client
+    container_name: poc-go-forwarder
     ports:
       - "3004:3004"
+    depends_on:
+      - node-server
+    networks:
+      - rust-node-net
+    mem_limit: 400m
+
+  go-dynamic-grpc:
+    build:
+      context: ../go-dynamic-grpc-executer
+      dockerfile: Dockerfile
+    image: go-dynamic-grpc
+    container_name: go-dynamic-grpc
+    ports:
+      - "3005:3005"
     depends_on:
       - node-server
     networks:
